@@ -12,9 +12,9 @@
 void sound_alarm() {
     esp_rom_gpio_pad_select_gpio(BUZZER_PIN);
     gpio_set_direction(BUZZER_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(BUZZER_PIN, 1); // Turn on the buzzer
-    vTaskDelay(1000 / portTICK_PERIOD_MS); // Wait for 1 second
-    gpio_set_level(BUZZER_PIN, 0); // Turn off the buzzer
+    gpio_set_level(BUZZER_PIN, 1);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    gpio_set_level(BUZZER_PIN, 0);
 }
 
 void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type) {
@@ -23,7 +23,6 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type) {
         wifi_pkt_rx_ctrl_t rx_ctrl = pkt->rx_ctrl;
         uint8_t *payload = pkt->payload;
 
-        // Deauth Frame
         if (payload[0] == 0xC0 && payload[1] == 0x00) {
             uint8_t* source_mac = payload + 10;
             ESP_LOGI(TAG, "Deauth packet detected from MAC address: %02X:%02X:%02X:%02X:%02X:%02X on channel %d",
@@ -31,18 +30,9 @@ void wifi_sniffer_packet_handler(void* buff, wifi_promiscuous_pkt_type_t type) {
             sound_alarm();
         }
 
-        // Pixie Dust Attack
         if (payload[0] == 0x30 && payload[1] == 0x00) {
             uint8_t* source_mac = payload + 4;
             ESP_LOGI(TAG, "Pixie Dust attack detected from MAC address: %02X:%02X:%02X:%02X:%02X:%02X on channel %d",
-                     source_mac[0], source_mac[1], source_mac[2], source_mac[3], source_mac[4], source_mac[5], rx_ctrl.channel);
-            sound_alarm();
-        }
-
-        // Probe Request Flood
-        if (payload[0] == 0x40 && payload[1] == 0x00) {
-            uint8_t* source_mac = payload + 10;
-            ESP_LOGI(TAG, "Probe request flood detected from MAC address: %02X:%02X:%02X:%02X:%02X:%02X on channel %d",
                      source_mac[0], source_mac[1], source_mac[2], source_mac[3], source_mac[4], source_mac[5], rx_ctrl.channel);
             sound_alarm();
         }
