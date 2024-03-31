@@ -9,6 +9,8 @@
 #define TAG "WIFI_SNIFFER"
 #define BUZZER_PIN GPIO_NUM_2
 
+
+
 void sound_alarm() {
     esp_rom_gpio_pad_select_gpio(BUZZER_PIN);
     gpio_set_direction(BUZZER_PIN, GPIO_MODE_OUTPUT);
